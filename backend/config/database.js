@@ -12,6 +12,7 @@ const connectDatabase = () => {
     //and is = mongodb://localhost:27017/shopit where shopit
     // is the name of our database
     //connect to mongodb database shopit using mongoose
+    //mongoose.connect ("mongodb://localhost/shopit")
     mongoose
         .connect(process.env.DB_LOCAL_URI, {
             useNewUrlParser: true,

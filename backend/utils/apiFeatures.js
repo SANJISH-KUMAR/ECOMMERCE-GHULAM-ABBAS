@@ -1,28 +1,17 @@
-//First of all, we have a class APIFeatures in which we have the search function.
-//In search(), we will check if keyword exist then we will simply search in the name field of the
-// product.First of all, the keyword is the query that the user will enter in the search box.
-//?name="AirPods"
-// Remember we are using the regex so that it does not only match exact same keyword.
-// And then we simply spread that keyword object in the find() with the spread operator.
-
 class APIFeatures {
+    // query = Product.find()
+
     constructor(query, queryStr) {
         this.query = query;
         this.queryStr = queryStr;
     }
 
     search() {
-        // {keyword : AirPods} because we enter ?keyword=AirPods in search box as querystring
-        console.log(this.queryStr);
-
-        // as queryStr is {keyword : AirPods} so this.queryStr.keyword = AirPods
-        console.log(this.queryStr.keyword); // -> AirPods
-
-        // if keyword exists in queryStr ie ?keyword=AirPods etc ie keyword = AirPods exists and is not
-        // undefined or blank , then name field is searched for matching regex pattern ie AirPods
-        // else {}
+        //this.queryStr.keyword -> if keyword exists ie if we type
+        //localhost:4000/api/v1/products?keyword=AirPods
         const keyword = this.queryStr.keyword ?
             {
+                // search in name field
                 name: {
                     $regex: this.queryStr.keyword,
                     $options: 'i',
@@ -30,49 +19,42 @@ class APIFeatures {
             } :
             {};
 
-        //keyword = { name: { '$regex': 'AirPods', '$options': 'i' } }
-        console.log(keyword);
-
-        //in the Query Object (Product.find()) find the keyword using spread operator
         this.query = this.query.find({...keyword });
         return this;
     }
 
     filter() {
-        //?keyword=AirPods&category=Laptops
-        // this.queryStr = {keyword : AirPods, category:Laptops}
         const queryCopy = {...this.queryStr };
 
-        console.log('Copying Query');
-        // {
-        //     keyword: AirPods,
-        //     (category = Laptops);
-        // }
-        //{keyword : AirPods, category:Laptops}
         console.log(queryCopy);
 
         // Removing fields from the query
-        // since keyword is not a field in our collections Product we remove it
-
-        //{ keyword: 'apple', price: { gte: '1', lte: '200' } }
-        //{ price: { gte: '1', lte: '200' } }
-
         const removeFields = ['keyword', 'limit', 'page'];
         removeFields.forEach((el) => delete queryCopy[el]);
 
-        //{ category: 'Laptops' }
         console.log(queryCopy);
 
-        this.query = this.query.find(queryCopy);
+        //{ price: { gte: '1', lte: '200' } }
 
-        //in POSTMAN TYPE {{DOMAIN}}/api/v1/products?keyword=apple&price[gte]=1&price[lte]=200
-        // Advance filter for price, ratings etc
+        //this.query = this.query.find(queryCopy);
+
+        // Advance filter for price , ratings etc
         let queryStr = JSON.stringify(queryCopy);
+
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
 
-        console.log(JSON.parse(queryStr));
+        console.log(queryStr);
+
+        //{ price: { gte: '1', lte: '200' } }
+        // gte , lte etc are mongo operators and each mongo operator starts with $ sign eg $lte
+        // so we have to add $ sign  $lte and $gte . Hence we replace as above
+        // console.log(queryCopy);
 
         this.query = this.query.find(JSON.parse(queryStr));
+
+        //db.sar.find({“Last_Name”:{$gte:“C”}})
+        //this.query = this.query.find({ 'queryStr.price': { $gte: '900' } });
+        //console.log(this.query);
         return this;
     }
 

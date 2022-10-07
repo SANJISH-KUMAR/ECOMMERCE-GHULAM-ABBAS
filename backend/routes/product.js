@@ -52,7 +52,13 @@ const {
     getSingleProduct,
     updateProduct,
     deleteProduct,
+    createProductReview,
+    getProductReviews,
+    deleteReview,
 } = require('../controllers/productcontroller');
+
+const { isAuthenticatedUser, authorizeRoles } = require('../middlewares/auth');
+
 console.log('product 2');
 // if we enter for eg localhost:4000/api/v1/products in browser , the products will be fetched
 // using the global getProducts function in productController.js
@@ -60,16 +66,26 @@ console.log('product 2');
 // for products.js file so /products or whatever we define below needs to be appended to /api/v1 to
 // get the products ie localhost:4000/api/v1/products will be a valid path in browser and not just
 // localhost:4000/products . We will get error if we use this path
+// To protect the route Check if user is AAUTHENTICATED and only then allow products to be accessed
+//
+router.route('/products').get(isAuthenticatedUser, getProducts);
+//router.route('/products').get(getProducts);
+//router.route('/products').get(getProducts);
+// only admin is authorized to view the products
 
-router.route('/products').get(getProducts);
 router.route('/product/:id').get(getSingleProduct);
 //post the data in the database
 //You cant issue POST request in browser URL as it takes only GET requests . We can issue POST request
 //only if you submit a form with method = "POST"  so instead we use POSTMAN software to issue POST
 // request on URL localhost:4000/api/v1/admin/product/new to add a new product
 //In POSTMAN clear all logs by pressing Clear button on bottom right and then run the GET/POST request
-router.route('/admin/product/new').post(newProduct);
-router.route('/admin/product/:id').put(updateProduct);
-router.route('/admin/product/:id').delete(deleteProduct);
+// we will use authController.js and productController.js for the functions
+router.route('/admin/product/new').post(isAuthenticatedUser, newProduct);
+router.route('/admin/product/:id').put(isAuthenticatedUser, updateProduct);
+router.route('/admin/product/:id').delete(isAuthenticatedUser, deleteProduct);
+router.route('/review').put(isAuthenticatedUser, createProductReview);
+router.route('/reviews').get(isAuthenticatedUser, getProductReviews);
+router.route('/reviews').delete(isAuthenticatedUser, deleteReview);
+
 console.log('product 3');
 module.exports = router;
